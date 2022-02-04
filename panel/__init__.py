@@ -1,6 +1,7 @@
 from flask import Flask
+from flask_login import LoginManager
 
-from .routes.main import main_blueprint
+login_manager = LoginManager()
 
 
 def create_app(test_config=None):
@@ -11,10 +12,16 @@ def create_app(test_config=None):
     else:
         _app.config.from_mapping(test_config)
 
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(_app)
+
     _app.logger.info(f"Starting app in \"{_app.config['FLASK_ENV']}\" environment")
 
     with _app.app_context():
-        _app.register_blueprint(main_blueprint)
+        from .routes import auth, main
+
+        _app.register_blueprint(main.main_blueprint)
+        _app.register_blueprint(auth.auth_blueprint)
 
         return _app
 
