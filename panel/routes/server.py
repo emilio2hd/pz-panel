@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, current_app, request
 from flask_login import login_required
 
-from ..lib.power_actions import CommandStatus, actions as server_power_actions
-from ..lib.resources_unctions import  server_status, server_resources, online_players
+from ..utils.power_actions import CommandStatus, actions as server_power_actions
+from ..utils.resources_unctions import  server_status, server_resources, online_players
 
 server_blueprint = Blueprint('server', __name__)
 
