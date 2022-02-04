@@ -1,17 +1,20 @@
 from flask import Flask
 
-
-def create_app():
-    return Flask(__name__)
+from .routes.main import main_blueprint
 
 
-app = create_app()
+def create_app(test_config=None):
+    _app = Flask(__name__, instance_relative_config=False)
 
+    if test_config is None:
+        _app.config.from_object("config.Config")
+    else:
+        _app.config.from_mapping(test_config)
 
-@app.route('/')
-def index():
-    return 'Flask is running!'
+    _app.logger.info(f"Starting app in \"{_app.config['FLASK_ENV']}\" environment")
 
+    with _app.app_context():
+        _app.register_blueprint(main_blueprint)
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+        return _app
+
