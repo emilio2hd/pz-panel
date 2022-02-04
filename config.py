@@ -11,3 +11,6 @@ class Config(object):
     SECRET_KEY = environ.get("SECRET_KEY")
 
     ADMIN_KEY = environ.get("ADMIN_KEY")
+
+    RCON_HOST = environ.get("RCON_HOST")
+    RCON_PASSWORD = environ.get("RCON_PASSWORD")

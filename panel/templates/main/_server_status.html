@@ -1,0 +1,70 @@
+<div class="row mb-3 mt-3" id="serverInfo">
+  <div class="col">
+    <div class="card" style="height: 110px;">
+      <div class="card-body">
+        <i class="fas fa-server fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
+        <h5 class="card-title text-muted">Zomboid Server Status</h5>
+        <div class="row">
+          <div class="col-6">
+            <server-status :status="pzserverStatus"></server-status>
+          </div>
+          <div class="col-6 text-right">
+            <power-button @power-action="onPowerActionEvent"></power-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card" style="height: 110px;">
+      <div class="card-body">
+        <i class="fas fa-users fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
+        <h5 class="card-title text-muted">Online Players</h5>
+        <span>{% raw %}{{onlinePlayers}}{% endraw %}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card" style="height: 110px;">
+      <div class="card-body">
+        <i class="fas fa-memory fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
+        <h5 class="card-title text-muted">Resources Usage</h5>
+        <resources-usage :cpu="cpuUsage" :memory="memoryUsage"></resources-usage>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let serverInfo = new Vue({
+  el: '#serverInfo',
+  data: {
+    pzserverStatus: null,
+    cpuUsage: 0,
+    memoryUsage: 0,
+    onlinePlayers: 0
+  },
+  created: function() {
+    var vm = this;
+    axios.get('/server/status').then((response) => {
+      vm.pzserverStatus = response.data.server_status
+      vm.onlinePlayers = response.data.online_players
+      vm.cpuUsage = response.data.server_resources.cpu
+      vm.memoryUsage = response.data.server_resources.ram
+    });
+  },
+  methods: {
+    onPowerActionEvent(selectedAction) {
+      axios.post('/server/power-actions', {
+        power_action: selectedAction,
+      }).then((response) => {
+      }).catch(() => {
+        this.$bvToast.toast(`Failed to ${selectedAction} the server`, {
+          title: `Error`,
+          variant: 'danger',
+          solid: true
+        })
+      });
+    },
+  },
+})
+</script>

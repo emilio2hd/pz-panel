@@ -18,10 +18,11 @@ def create_app(test_config=None):
     _app.logger.info(f"Starting app in \"{_app.config['FLASK_ENV']}\" environment")
 
     with _app.app_context():
-        from .routes import auth, main
+        from .routes import auth, main, server
 
         _app.register_blueprint(main.main_blueprint)
         _app.register_blueprint(auth.auth_blueprint)
+        _app.register_blueprint(server.server_blueprint)
 
         return _app
 
