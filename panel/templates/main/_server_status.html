@@ -57,6 +57,11 @@ let serverInfo = new Vue({
       axios.post('/server/power-actions', {
         power_action: selectedAction,
       }).then((response) => {
+        this.$bvToast.toast(`Action "${selectedAction}" successfully performed. `, {
+          title: `Action Performed`,
+          variant: 'default',
+          solid: true
+        })
       }).catch(() => {
         this.$bvToast.toast(`Failed to ${selectedAction} the server`, {
           title: `Error`,

@@ -1,5 +1,5 @@
-import subprocess
 from enum import Enum, unique
+from subprocess import Popen, PIPE
 
 
 @unique
@@ -16,10 +16,13 @@ def power_action(task_fn):
 
 
 def execute_command(pzuser_home, command):
-    source = f"source {pzuser_home}/.profile"
-    process_output = subprocess.run(['/bin/bash', '-c', '%s && %s' % (source, command)], capture_output=True)
+    cmd = f"{pzuser_home}/pz-server/bin/{command}"
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
+    print(stdout)
+    print(stderr)
 
-    return CommandStatus.SUCCESS if process_output.returncode == 0 else CommandStatus.FAIL
+    return CommandStatus.SUCCESS if p.returncode == 0 else CommandStatus.FAIL
 
 
 @power_action
