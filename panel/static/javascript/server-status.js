@@ -15,6 +15,8 @@ Vue.component('server-status', {
         Online
       </div>
       <div v-else-if="isOffline">
+        <i class="fas fa-circle text-danger"></i>
+        Offline
       </div>
       <div v-else>
         <i class="fas fa-circle text-secondary"></i>
