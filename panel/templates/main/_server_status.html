@@ -14,7 +14,18 @@
         <div class="card" style="height: 110px;">
           <div class="card-body">
             <i class="fas fa-server fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
-            <h5 class="card-title text-muted">Zomboid Server Status</h5>
+            <div class="card-title">
+              <div class="d-flex">
+                <div class="flex-shrink-1 mr-2">
+                  <a href="#" class="text-secondary" @click="onRefreshClick()" v-b-tooltip.hover title="Refresh server status">
+                    <i class="fas fa-sync-alt fa-sm"></i>
+                  </a>
+                </div>
+                <div class="w-100">
+                  <h5 class="text-muted">Zomboid Server Status</h5>
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-6">
                 <server-status :status="pzserverStatus"></server-status>
@@ -85,6 +96,17 @@ let serverInfo = new Vue({
         })
       });
     },
+    onRefreshClick() {
+      var vm = this;
+      vm.loading = true;
+      axios.get('/server/status').then((response) => {
+        vm.pzserverStatus = response.data.server_status
+        vm.onlinePlayers = response.data.online_players
+        vm.cpuUsage = response.data.server_resources.cpu
+        vm.memoryUsage = response.data.server_resources.ram
+        vm.loading = false;
+      });
+    }
   },
 })
 </script>
