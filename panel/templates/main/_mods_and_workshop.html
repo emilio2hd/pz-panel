@@ -1,0 +1,255 @@
+<div class="row" id="modsAndWorkshopItems">
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-5">Workshop Items</div>
+          <div class="col-7">
+            <search-field
+              v-model="filterWorkshopItems"
+              :disabled="loadingItems"
+            ></search-field>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" style="height:500px; overflow-y: scroll;">
+        <list-items
+          :loading="loadingItems"
+          :items="workshopItems"
+        ></list-items>
+      </div>
+      <div class="card-footer bg-transparent">
+        <div class="row align-items-center">
+          <div class="col">
+            <b-link @click="onSelectAllWorkshopItemsClick()">Select All</b-link>
+            -
+            <b-link @click="onDeselectAllWorkshopItemsClick()">Deselect All</b-link>
+          </div>
+          <div class="col text-right">
+            <b-button
+              variant="outline-primary"
+              size="sm"
+              @click="openAddItemsModal()"
+            >Add More</b-button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              :disabled="!hasSelectedItems()"
+              @click="onRemoveSelectedWorkshopItemsClick"
+            >
+              Remove Selected
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-5">Mods</div>
+          <div class="col-7">
+            <search-field
+              v-model="filterMods"
+              :disabled="loadingItems"
+            ></search-field>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" style="height:500px; overflow-y: scroll;">
+        <list-items
+          :loading="loadingItems"
+          :items="mods"
+        ></list-items>
+      </div>
+      <div class="card-footer bg-transparent">
+        <div class="row align-items-center">
+          <div class="col">
+            <b-link @click="onSelectAllModsClick()">Select All</b-link>
+            -
+            <b-link @click="onDeselectAllModsClick()">Deselect All</b-link>
+          </div>
+          <div class="col text-right">
+            <b-button
+              variant="outline-primary"
+              size="sm"
+              @click="openAddItemsModal"
+            >Add More</b-button>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm"
+              :disabled="!hasSelectedMods()"
+              @click="onRemoveSelectedModsClick"
+            >
+              Remove Selected
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <add-items-modal
+    :modal-id="modalId"
+    :loading="modalAddItemsLoading"
+    @save-items="onSaveItems"
+  >
+  </add-items-modal>
+</div>
+
+<script>
+let modsAndWorkshopItems = new Vue({
+  el: '#modsAndWorkshopItems',
+  data: {
+    loadingItems: true,
+    filterWorkshopItems: '',
+    filterMods: '',
+    loadingMods: false,
+    internalWorkshopItems: [],
+    internalModsItems: [],
+    modalAddItemsLoading: false,
+    modalId: 'modal-add-items',
+  },
+  mounted() {
+    axios.get('/server/options').then((response) => {
+      let workshopItems = response.data['WorkshopItems'].map((item) => ({ name: item, checked: false }))
+      let mods = response.data['Mods'].map((item) => ({ name: item, checked: false }))
+      this.internalWorkshopItems = workshopItems
+      this.internalModsItems = mods
+      this.loadingItems = false
+    });
+  },
+  computed: {
+    workshopItems() {
+      let filteredWorkshopItems = this.internalWorkshopItems
+
+      if (filteredWorkshopItems && this.filterWorkshopItems != '' && this.filterWorkshopItems) {
+
+        filteredWorkshopItems = filteredWorkshopItems.filter((item) => {
+          return item.name.includes(this.filterWorkshopItems)
+        })
+      }
+
+      return filteredWorkshopItems
+    },
+    mods() {
+      let filteredMods = this.internalModsItems;
+
+      if (filteredMods && this.filterMods != '' && this.filterMods) {
+
+        filteredMods = filteredMods.filter((item) => {
+          return item.name.includes(this.filterMods);
+        })
+      }
+
+      return filteredMods;
+    },
+  },
+  methods: {
+    hasSelectedItems() {
+      return this.internalWorkshopItems.some(i => i.checked)
+    },
+    hasSelectedMods() {
+      return this.internalModsItems.some(i => i.checked)
+    },
+    onRemoveSelectedWorkshopItemsClick() {
+      workshopItems = this.internalWorkshopItems.filter(i => i.checked).map(i => i.name);
+
+      const create = this.$createElement
+      const messageVNode = create('div', {}, [
+        `Are you sure to deletes these items?`,
+        create('p', {}, [`[${workshopItems.join(', ')}]`]),
+      ]);
+
+      this.confirmation(messageVNode, (value) => {
+        if(value == true) {
+          this.loadingItems = true
+
+          let newInternalWorkshopItems = this.internalWorkshopItems.filter((item) => !workshopItems.includes(item.name))
+          axios.post('/server/options', { WorkshopItems: newInternalWorkshopItems.map(i => i.name) })
+          .then((response) => {
+            this.loadingItems = false
+            this.internalWorkshopItems = newInternalWorkshopItems;
+            this.successToast("Workshop items successfully removed", "Workshop Item");
+          }).catch(() => {
+            this.loadingItems = false
+            this.errorToast("Failed to remove workshop item", "Workshop Item");
+          });
+        }
+      });
+    },
+    onRemoveSelectedModsClick() {
+      let modsItems = this.internalModsItems.filter(i => i.checked).map(i => i.name);
+      const create = this.$createElement
+      const messageVNode = create('div', {}, [
+        `Are you sure to deletes these items?`,
+        create('p', {}, [`[${modsItems.join(', ')}]`]),
+      ]);
+
+      this.confirmation(messageVNode, (value) => {
+        if(value == true) {
+          this.loadingItems = true
+
+          let newInternalModsItems = this.internalModsItems.filter((item) => !modsItems.includes(item.name))
+          axios.post('/server/options', { Mods: newInternalModsItems.map(i => i.name) })
+          .then((response) => {
+            this.loadingItems = false
+            this.internalModsItems = newInternalModsItems;
+            this.successToast("Mods successfully removed", "Mods");
+          }).catch(() => {
+            this.loadingItems = false
+            this.errorToast("Failed to remove mods", "Mods");
+          });
+        }
+      });
+    },
+    onSelectAllWorkshopItemsClick() {
+      this.internalWorkshopItems.forEach(i => i.checked = true);
+    },
+    onDeselectAllWorkshopItemsClick() {
+      this.internalWorkshopItems.forEach(i => i.checked = false);
+    },
+    onSelectAllModsClick() {
+      this.internalModsItems.forEach(i => i.checked = true);
+    },
+    onDeselectAllModsClick() {
+      this.internalModsItems.forEach(i => i.checked = false);
+    },
+
+    // Modal!
+    onSaveItems(newItems) {
+      if(newItems.workshopItems.length <= 0 && newItems.mods.length <= 0) {
+        this.closeAddItemsModal();
+        return;
+      }
+
+      this.modalAddItemsLoading = true;
+
+      let workshopItems = this.internalWorkshopItems.map(i => i.name)
+      let mods = this.internalModsItems.map(i => i.name)
+      axios.post('/server/options', {
+        WorkshopItems: workshopItems.concat(newItems.workshopItems),
+        Mods: mods.concat(newItems.mods),
+      }).then((response) => {
+        let workshopItems = response.data['WorkshopItems'].map((item) => ({ name: item, checked: false }));
+        let mods = response.data['Mods'].map((item) => ({ name: item, checked: false }));
+        this.internalWorkshopItems = workshopItems;
+        this.internalModsItems = mods;
+        this.closeAddItemsModal();
+        this.successToast("New items successfully added", "New Items");
+      }).catch(() => {
+        this.modalAddItemsLoading = false
+        this.errorToast("Failed to add new items", "New Items");
+      });
+    },
+    openAddItemsModal(){
+      this.modalAddItemsLoading = false
+      this.$bvModal.show(this.modalId);
+    },
+    closeAddItemsModal(){
+      this.modalAddItemsLoading = false
+      this.$bvModal.hide(this.modalId);
+    },
+  }
+});
+</script>
