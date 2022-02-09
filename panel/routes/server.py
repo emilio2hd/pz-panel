@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request
 from flask_login import login_required
-from configobj import ConfigObj
 
 from ..utils.power_actions import CommandStatus, actions as server_power_actions
 from ..utils.resources_functions import server_status, server_resources, online_players
@@ -49,7 +48,8 @@ def power_actions():
 @login_required
 def list_workshop_items():
     server_config_path = current_app.config['PZ_SERVER_CONFIG']
-    config = ConfigObj(server_config_path, write_empty_values=True, interpolation=False)
+    with open(server_config_path) as f:
+        config = dict(x.rstrip().split("=", 1) for x in f)
 
     return jsonify(
         WorkshopItems=list(filter(None, config["WorkshopItems"].split(";"))),
@@ -63,7 +63,8 @@ def save_items():
     request_data = request.get_json()
 
     server_config_path = current_app.config['PZ_SERVER_CONFIG']
-    config = ConfigObj(server_config_path, write_empty_values=True, interpolation=False)
+    with open(server_config_path) as f:
+        config = dict(x.rstrip().split("=", 1) for x in f)
 
     if("WorkshopItems" in request_data):
         workshop_items = request_data.get("WorkshopItems", [])
@@ -73,7 +74,9 @@ def save_items():
         mods = request_data.get("Mods", [])
         config['Mods'] = ";".join(mods)
 
-    config.write()
+    with open(server_config_path, 'w') as f:
+        for key in config.keys():
+            f.write("%s=%s\n" %(key, config[key]))
 
     return jsonify(
         WorkshopItems=list(filter(None, config["WorkshopItems"].split(";"))),
