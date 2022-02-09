@@ -48,15 +48,32 @@ Vue.component('add-items-modal', {
       this.modalOpt.newWorkshopItemState = null;
       this.modalOpt.newModState = null;
 
-      if(this.options.workshopItems.length <= 0 && this.options.mods.length <= 0){
+      let newWorkshopItem = this.newWorkshopItem.trim();
+      let newMod = this.newMod.trim();
+
+      if(
+        (this.options.workshopItems.length <= 0 && this.options.mods.length <= 0) &&
+        (newWorkshopItem == '' && newMod == '')
+      ){
         this.modalOpt.newWorkshopItemState = false
         this.modalOpt.newModState = false;
         return;
       }
 
+      let workshopItems = [...this.options.workshopItems];
+      let mods = [...this.options.mods];
+
+      if(newWorkshopItem.trim() != '') {
+        workshopItems.push(newWorkshopItem);
+      }
+
+      if(newMod.trim() != '') {
+        mods.push(newMod);
+      }
+
       this.$emit('save-items', {
-        workshopItems: this.options.workshopItems,
-        mods: this.options.mods,
+        workshopItems: workshopItems,
+        mods: mods,
       });
     },
     onNewWorkshopItemEnter() {
