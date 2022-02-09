@@ -15,4 +15,5 @@ class Config(object):
     RCON_HOST = environ.get("RCON_HOST")
     RCON_PASSWORD = environ.get("RCON_PASSWORD")
     PZ_USER_HOME = environ.get("PZ_USER_HOME")
+    PZ_SERVER_CONFIG = environ.get("PZ_SERVER_CONFIG")
 
