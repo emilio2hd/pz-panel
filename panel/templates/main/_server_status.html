@@ -66,7 +66,7 @@ let serverInfo = new Vue({
     pzserverStatus: null,
     cpuUsage: 0,
     memoryUsage: 0,
-    onlinePlayers: 0
+    onlinePlayers: 0,
   },
   created: function() {
     var vm = this;
@@ -85,7 +85,7 @@ let serverInfo = new Vue({
       }).then((response) => {
         this.$bvToast.toast(`Action "${selectedAction}" successfully performed. `, {
           title: `Action Performed`,
-          variant: 'default',
+          variant: 'success',
           solid: true
         })
       }).catch(() => {
