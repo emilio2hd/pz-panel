@@ -9,6 +9,13 @@ Vue.component('list-items', {
       default: false
     },
   },
+  methods: {
+    applySelectionIfChecked(item) {
+      if(item.checked) {
+        return 'warning';
+      }
+    }
+  },
   template: `
   <div class="list-items">
   <b-skeleton-wrapper :loading="loading" class="row">
@@ -22,7 +29,13 @@ Vue.component('list-items', {
     </template>
     <b-table-simple striped hover>
       <b-tbody>
-        <b-tr v-for="item in items" :key="item.name">
+        <b-tr
+          v-for="item in items"
+          :key="item.name"
+          :variant="applySelectionIfChecked(item)"
+          role="button"
+          @click="item.checked = !item.checked"
+        >
           <b-td width="3%">
             <input type="checkbox"
               v-model="item.checked"
