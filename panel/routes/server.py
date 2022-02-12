@@ -1,5 +1,5 @@
-import time
 import glob
+from os import path
 from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
 
@@ -90,8 +90,8 @@ def save_items():
 @login_required
 def listen_log():
     def followLog(serverLogsDir):
-        filePrefix = time.strftime("%d-%m-%y")
-        logFiles = glob.glob(serverLogsDir + f"/{filePrefix}*_DebugLog-server.txt")
+        logFilePattern = "*_DebugLog-server.txt"
+        logFiles = glob.glob(path.join(serverLogsDir, logFilePattern))
         if not logFiles:
             yield 'data: {}\n\n'.format(
                 json.dumps({ "error": True, "errorMessage": "No log file found" })
