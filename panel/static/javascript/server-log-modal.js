@@ -7,19 +7,9 @@ Vue.component('server-log-modal', {
       required: true,
     },
   },
-  watch: {
-    logs () {
-      this.$nextTick(() => {
-        const el = this.$refs.logs
-        if(el) {
-          el.scrollTop = el.scrollHeight
-        }
-      })
-    }
-  },
   data: function () {
     return {
-        logs: []
+        logEntries: ''
     }
   },
   methods: {
@@ -37,29 +27,36 @@ Vue.component('server-log-modal', {
         format: 'json',
       });
 
-      this.logs.push('Connecting...')
+      this.log('Connecting...')
       client.on('message', (data) => {
         if("error" in data) {
-          this.logs.push(data.errorMessage);
-          this.logs.push("Disconnecting.");
+          this.log(data.errorMessage);
+          this.log("Disconnecting.");
           return client.disconnect();
         }
 
-        this.logs.push(data.log)
+        this.log(data.log);
       })
       .on('error', (err) => console.error('Failed to parse or lost connection:', err))
       .connect()
-      .catch(() => this.logs.push('Failed to connect.'))
+      .catch(() => this.log('Failed to connect.'))
     },
     disconnect () {
       if (client) {
-        this.logs.push("Disconnecting...")
+        this.log("Disconnecting...")
         client.disconnect();
         client = null;
       }
 
-      this.logs = [];
+      this.logEntries = "";
     },
+    log(entry) {
+      this.logEntries += `${entry}\n`;
+      const el = this.$refs.logsText
+      if(el) {
+        el.$el.scrollTop = el.$el.scrollHeight
+      }
+    }
   },
   beforeDestroy () {
     this.disconnect()
@@ -80,9 +77,16 @@ Vue.component('server-log-modal', {
       <i class="fa fa-book"></i>
       Server logs
     </template>
-    <div id="logs" ref="logs" style="height: 350px; overflow-y: scroll; font-size: 13px; font-family: SFMono-Regular,Menlo,Monaco,Consolas,monospace">
-      <div v-for="(log, i) in logs" :key="i" v-text="log"></div>
-    </div>
+
+    <b-form-textarea
+      rows="3"
+      id="logsText"
+      ref="logsText"
+      max-rows="20"
+      plaintext
+      :value="logEntries"
+      style="font-size: 13px; font-family: SFMono-Regular,Menlo,Monaco,Consolas,monospace"
+    ></b-form-textarea>
 
   </b-modal>
   `
