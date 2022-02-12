@@ -1,4 +1,6 @@
-from flask import Blueprint, jsonify, current_app, request
+import time
+import glob
+from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
 
 from ..utils.power_actions import CommandStatus, actions as server_power_actions
@@ -82,3 +84,34 @@ def save_items():
         WorkshopItems=list(filter(None, config["WorkshopItems"].split(";"))),
         Mods=list(filter(None, config["Mods"].split(";")))
     )
+
+
+@server_blueprint.route('/server/log')
+@login_required
+def listen_log():
+    def followLog(serverLogsDir):
+        filePrefix = time.strftime("%d-%m-%y")
+        logFiles = glob.glob(serverLogsDir + f"/{filePrefix}*_DebugLog-server.txt")
+        if not logFiles:
+            yield 'data: {}\n\n'.format(
+                json.dumps({ "error": True, "errorMessage": "No log file found" })
+            )
+            return
+
+        logFiles.sort(reverse=True)
+
+        with open(logFiles[0]) as serverLogFile:
+            try:
+                while True:
+                    line = serverLogFile.readline()
+                    if not line:
+                        continue
+
+                    yield 'data: {}\n\n'.format(
+                        json.dumps({ "log": line.strip() })
+                    )
+            finally:
+                pass
+
+    serverLogsDir = current_app.config['PZ_SERVER_LOGS_DIR']
+    return Response(followLog(serverLogsDir), mimetype='text/event-stream')

@@ -27,11 +27,20 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-6">
+              <div class="col-4">
                 <server-status :status="pzserverStatus"></server-status>
               </div>
-              <div class="col-6 text-right">
-                <power-button @power-action="onPowerActionEvent"></power-button>
+              <div class="col-8 text-right">
+                <power-button @power-action="onPowerActionEvent" class="float-right"></power-button>
+                <b-button
+                  variant="outline-primary"
+                  size="sm"
+                  @click="openServerLogsModal"
+                  class="float-right mr-1"
+                >
+                  <i class="fa fa-book"></i>
+                  View Logs
+                </b-button>
               </div>
             </div>
           </div>
@@ -57,8 +66,13 @@
       </div>
     </div>
   </b-skeleton-wrapper>
+  <server-log-modal
+    :modal-id="modalId"
+    :loading="false"
+  ></server-log-modal>
 </div>
 <script>
+Vue.use(VueSSE)
 let serverInfo = new Vue({
   el: '#serverInfo',
   data: {
@@ -67,6 +81,7 @@ let serverInfo = new Vue({
     cpuUsage: 0,
     memoryUsage: 0,
     onlinePlayers: 0,
+    modalId: 'modal-server-logs',
   },
   created: function() {
     var vm = this;
@@ -106,7 +121,10 @@ let serverInfo = new Vue({
         vm.memoryUsage = response.data.server_resources.ram
         vm.loading = false;
       });
-    }
+    },
+    openServerLogsModal(){
+      this.$bvModal.show(this.modalId);
+    },
   },
 })
 </script>
