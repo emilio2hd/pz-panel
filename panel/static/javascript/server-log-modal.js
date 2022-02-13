@@ -28,6 +28,7 @@ Vue.component('server-log-modal', {
     return {
         logs: [],
         logEntry: entryComponent,
+        connecting: false,
     }
   },
   methods: {
@@ -45,7 +46,7 @@ Vue.component('server-log-modal', {
         format: 'json',
       });
 
-      this.log('Connecting...')
+      this.connecting = true;
       client.on('message', (data) => {
         if("error" in data) {
           this.log(data.errorMessage);
@@ -55,8 +56,12 @@ Vue.component('server-log-modal', {
 
         this.log(data.log);
       })
-      .on('error', (err) => console.error('Failed to parse or lost connection:', err))
+      .on('error', (err) => {
+        console.error('Failed to parse or lost connection:', err);
+        this.connecting = false;
+      })
       .connect()
+      .then(() => this.connecting = false)
       .catch(() => this.log('Failed to connect.'))
     },
     disconnect () {
@@ -66,6 +71,7 @@ Vue.component('server-log-modal', {
         client = null;
       }
 
+      this.connecting = false;
       this.logs = [];
     },
     log(entry) {
@@ -101,6 +107,10 @@ Vue.component('server-log-modal', {
     <div
       style="font-size: 13px; font-family: SFMono-Regular,Menlo,Monaco,Consolas,monospace"
     >
+      <div v-if="connecting">
+        <b-spinner small label="Small Spinner" type="grow"></b-spinner>
+        Connecting...
+      </div>
       <virtual-list style="height: 360px; overflow-y: auto;" ref="vsl"
         :data-key="'id'"
         :data-sources="logs"
