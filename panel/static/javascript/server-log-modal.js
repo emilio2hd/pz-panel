@@ -1,5 +1,22 @@
 let client;
 
+let entryComponent = Vue.component('log-entry', {
+  props: {
+    index: {
+      type: Number
+    },
+    source: {
+      type: Object,
+      default () {
+        return {}
+      }
+    }
+  },
+  template: `
+  <div>{{ source.message }}</div>
+  `
+});
+
 Vue.component('server-log-modal', {
   props: {
     modalId: {
@@ -9,7 +26,8 @@ Vue.component('server-log-modal', {
   },
   data: function () {
     return {
-        logEntries: ''
+        logs: [],
+        logEntry: entryComponent,
     }
   },
   methods: {
@@ -48,15 +66,17 @@ Vue.component('server-log-modal', {
         client = null;
       }
 
-      this.logEntries = "";
+      this.logs = [];
     },
     log(entry) {
-      this.logEntries += `${entry}\n`;
-      const el = this.$refs.logsText
-      if(el) {
-        el.$el.scrollTop = el.$el.scrollHeight
+      this.logs.push({ id: new Date().getTime(), message: entry});
+      this.$nextTick(() => this.setVirtualListToBottom())
+    },
+    setVirtualListToBottom () {
+      if (this.$refs.vsl) {
+        this.$refs.vsl.scrollToBottom()
       }
-    }
+    },
   },
   beforeDestroy () {
     this.disconnect()
@@ -78,16 +98,15 @@ Vue.component('server-log-modal', {
       Server logs
     </template>
 
-    <b-form-textarea
-      rows="3"
-      id="logsText"
-      ref="logsText"
-      max-rows="20"
-      plaintext
-      :value="logEntries"
+    <div
       style="font-size: 13px; font-family: SFMono-Regular,Menlo,Monaco,Consolas,monospace"
-    ></b-form-textarea>
-
+    >
+      <virtual-list style="height: 360px; overflow-y: auto;" ref="vsl"
+        :data-key="'id'"
+        :data-sources="logs"
+        :data-component="logEntry"
+      />
+    </div>
   </b-modal>
   `
 });
