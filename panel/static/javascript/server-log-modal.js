@@ -115,6 +115,7 @@ Vue.component('server-log-modal', {
         :data-key="'id'"
         :data-sources="logs"
         :data-component="logEntry"
+        :estimate-size="50"
       />
     </div>
   </b-modal>

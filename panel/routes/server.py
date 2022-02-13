@@ -1,4 +1,5 @@
 import glob
+import time
 from os import path
 from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
@@ -107,6 +108,7 @@ def listen_log():
                     if not line:
                         continue
 
+                    time.sleep(0.01)
                     yield 'data: {}\n\n'.format(
                         json.dumps({ "log": line.strip() })
                     )
