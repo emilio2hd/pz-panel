@@ -29,6 +29,9 @@ Vue.component('add-items-modal', {
     }
   },
   methods: {
+    onShownModal() {
+      this.$refs.newWorkshopItemInput.focus();
+    },
     resetModal() {
       this.newWorkshopItem = '';
       this.newMod = '';
@@ -112,6 +115,7 @@ Vue.component('add-items-modal', {
     @hidden="resetModal"
     @ok="handleOk"
     @show="resetModal"
+    @shown="onShownModal"
   >
     <b-overlay :show="showOverlay" rounded="sm">
       <template #overlay>
@@ -125,75 +129,69 @@ Vue.component('add-items-modal', {
         :show="modalOpt.newWorkshopItemState == false || modalOpt.newModState == false"
         variant="danger"
       >
-        You need to add at least one either Workshop Item or Mod.
+        You need to add at least one of either Workshop id or Mod id.
       </b-alert>
       <b-row>
-        <b-col>
-          <h6>Workshop Items</h6>
-          <b-input-group class="form-group">
-            <template #append>
-              <b-input-group-text>
-                <i class="fas fa-info-circle"
-                  v-b-tooltip.hover.left
-                  title="Press <Enter> to add multiple items"
-                ></i>
-              </b-input-group-text>
-            </template>
+        <b-col cols="6">
+          <h6>Workshop Id</h6>
+          <b-input-group class="form-group mb-0">
             <b-form-input
               v-model="newWorkshopItem"
+              ref="newWorkshopItemInput"
               :state="modalOpt.newWorkshopItemState"
               @keyup.enter="onNewWorkshopItemEnter()"
+              placeholder="Add the workshop id here"
               required
             ></b-form-input>
           </b-input-group>
-          <b-list-group>
-            <b-list-group-item v-for="item in options.workshopItems" :key="item.value">
-            <div class="d-flex">
-              <div class="flex-grow-1">{{ item }}</div>
-              <b-link @click="removeNewWorkshopItem(item)">
-                <i
-                  class="fas fa-trash"
-                  v-b-tooltip.hover.left
-                  title="Remove"
-                ></i>
-              </b-link>
-            </div>
-            </b-list-group-item>
-          </b-list-group>
         </b-col>
-        <b-col>
-          <h6>Mods</h6>
-          <b-input-group class="form-group">
-            <template #append>
-              <b-input-group-text>
-                <i class="fas fa-info-circle"
-                  v-b-tooltip.hover.left
-                  title="Press <Enter> to add multiple items"
-                ></i>
-              </b-input-group-text>
-            </template>
+        <b-col cols="6">
+          <h6>Mod Id</h6>
+          <b-input-group class="form-group mb-0">
             <b-form-input
               v-model="newMod"
               :state="modalOpt.newModState"
               @keyup.enter="onNewModEnter()"
+              placeholder="Add the mod id here"
               required
             ></b-form-input>
           </b-input-group>
-          <b-list-group>
-            <b-list-group-item v-for="item in options.mods" :key="item.value">
-            <div class="d-flex">
-              <div class="flex-grow-1">{{ item }}</div>
-              <b-link @click="removeNewMod(item)">
-                <i
-                  class="fa fa-trash"
-                  v-b-tooltip.hover.left
-                  title="Remove"
-                ></i>
-              </b-link>
-            </div>
-            </b-list-group-item>
-          </b-list-group>
         </b-col>
+      </b-row>
+      <p class="text-muted font-italic mb-1"><small>Press &lt;Enter&gt; to add multiple items</small></p>
+      <b-row>
+      <b-col cols="6">
+        <b-list-group>
+          <b-list-group-item v-for="item in options.workshopItems" :key="item.value">
+          <div class="d-flex">
+            <div class="flex-grow-1">{{ item }}</div>
+            <b-link @click="removeNewWorkshopItem(item)">
+              <i
+                class="fas fa-trash"
+                v-b-tooltip.hover.left
+                title="Remove"
+              ></i>
+            </b-link>
+          </div>
+          </b-list-group-item>
+        </b-list-group>
+      </b-col>
+      <b-col cols="6">
+        <b-list-group>
+          <b-list-group-item v-for="item in options.mods" :key="item.value">
+          <div class="d-flex">
+            <div class="flex-grow-1">{{ item }}</div>
+            <b-link @click="removeNewMod(item)">
+              <i
+                class="fa fa-trash"
+                v-b-tooltip.hover.left
+                title="Remove"
+              ></i>
+            </b-link>
+          </div>
+          </b-list-group-item>
+        </b-list-group>
+      </b-col>
       </b-row>
     </b-overlay>
   </b-modal>
