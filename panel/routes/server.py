@@ -71,11 +71,11 @@ def save_items():
 
     if("WorkshopItems" in request_data):
         workshop_items = request_data.get("WorkshopItems", [])
-        config['WorkshopItems'] = ";".join(workshop_items)
+        config['WorkshopItems'] = ";".join(list(dict.fromkeys(workshop_items)))
 
     if("Mods" in request_data):
         mods = request_data.get("Mods", [])
-        config['Mods'] = ";".join(mods)
+        config['Mods'] = ";".join(list(dict.fromkeys(mods)))
 
     with open(server_config_path, 'w') as f:
         for key in config.keys():
