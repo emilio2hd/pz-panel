@@ -5,7 +5,7 @@ from psutil import virtual_memory, cpu_percent
 
 def server_status(rcon_host, rcon_password):
     try:
-        with Client(rcon_host, 27015, timeout=2, passwd=rcon_password):
+        with Client(rcon_host, 27015, timeout=5, passwd=rcon_password):
             is_server_on = True
     except:
         is_server_on = False
@@ -26,7 +26,7 @@ def online_players(rcon_host, rcon_password):
     players = 0
 
     try:
-        with Client(rcon_host, 27015, timeout=2, passwd=rcon_password) as client:
+        with Client(rcon_host, 27015, timeout=5, passwd=rcon_password) as client:
             response = client.run('players')
 
             result = re.search(r"Players connected \((.*)\)", response)

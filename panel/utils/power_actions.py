@@ -1,5 +1,6 @@
+import shlex
 from enum import Enum, unique
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, run
 
 
 @unique
@@ -38,3 +39,11 @@ def start_server(pzuser_home,):
 @power_action
 def restart_server(pzuser_home):
     return execute_command(pzuser_home, 'restart-zomboid')
+
+def is_zomboid_screen_session_up():
+    command_line = f"/usr/bin/screen -S zomboid -Q info > /dev/null"
+    args = shlex.split(command_line)
+    command_result = run(args, capture_output=True)
+
+    return True if command_result.returncode == 0 else False
+
