@@ -126,7 +126,7 @@ let modsAndWorkshopItems = new Vue({
       if (filteredWorkshopItems && this.filterWorkshopItems != '' && this.filterWorkshopItems) {
 
         filteredWorkshopItems = filteredWorkshopItems.filter((item) => {
-          return item.name.includes(this.filterWorkshopItems)
+          return item.name.toLowerCase().includes(this.filterWorkshopItems.toLowerCase())
         })
       }
 
@@ -138,7 +138,7 @@ let modsAndWorkshopItems = new Vue({
       if (filteredMods && this.filterMods != '' && this.filterMods) {
 
         filteredMods = filteredMods.filter((item) => {
-          return item.name.includes(this.filterMods);
+          return item.name.toLowerCase().includes(this.filterMods.toLowerCase());
         })
       }
 
