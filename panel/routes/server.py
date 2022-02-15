@@ -15,17 +15,16 @@ server_blueprint = Blueprint('server', __name__)
 def status():
     rcon_host = current_app.config['RCON_HOST']
     rcon_password = current_app.config['RCON_PASSWORD']
+    is_rcon_server_on = None
 
-    is_server_on = server_status(rcon_host, rcon_password)
-    if is_zomboid_screen_session_up() and is_server_on:
-        status = "online"
-    elif not is_server_on:
-        status = "starting"
+    if is_zomboid_screen_session_up():
+        is_rcon_server_on = server_status(rcon_host, rcon_password)
+        status = "online" if is_rcon_server_on else "starting"
     else:
         status = "offline"
 
     players = 0
-    if is_server_on:
+    if is_rcon_server_on:
         players = online_players(rcon_host, rcon_password)
 
     return jsonify(
