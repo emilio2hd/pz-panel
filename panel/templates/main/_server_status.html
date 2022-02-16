@@ -51,7 +51,21 @@
           <div class="card-body">
             <i class="fas fa-memory fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
             <h5 class="card-title text-muted">Resources Usage</h5>
-            <resources-usage :cpu="cpuUsage" :memory="memoryUsage"></resources-usage>
+            <b-row>
+              <b-col cols="7">
+                <resources-usage :cpu="cpuUsage" :memory="memoryUsage"></resources-usage>
+              </b-col>
+              <b-col cols="5">
+                <div style="font-size: 0.694rem;">
+                  <i class="fas fa-hdd"></i>
+                  Disk Usage
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" v-b-tooltip.hover :title="`Used Space: ${disk.used}`" role="progressbar" v-bind:style="{ width: disk.usagePercent + '%' }"></div>
+                  <div class="progress-bar bg-transparent" v-b-tooltip.hover :title="`Available: ${disk.free}`" role="progressbar" v-bind:style="{ width: diskAvailablePercent + '%' }"></div>
+                </div>
+              </b-col>
+            </b-row>
           </div>
         </div>
       </div>
@@ -73,6 +87,11 @@ let serverInfo = new Vue({
     memoryUsage: 0,
     onlinePlayers: 0,
     modalId: 'modal-server-logs',
+    disk: {
+      free: 0,
+      used: 0,
+      usagePercent: 0
+    },
   },
   created: function() {
     var vm = this;
@@ -81,8 +100,14 @@ let serverInfo = new Vue({
       vm.onlinePlayers = response.data.online_players
       vm.cpuUsage = response.data.server_resources.cpu
       vm.memoryUsage = response.data.server_resources.ram
+      vm.disk = response.data.server_resources.disk
       vm.loading = false;
     });
+  },
+  computed: {
+    diskAvailablePercent() {
+      return 100.0 - this.disk.usagePercent;
+    }
   },
   methods: {
     onPowerActionEvent(selectedAction) {
@@ -110,6 +135,7 @@ let serverInfo = new Vue({
         vm.onlinePlayers = response.data.online_players
         vm.cpuUsage = response.data.server_resources.cpu
         vm.memoryUsage = response.data.server_resources.ram
+        vm.disk = response.data.server_resources.disk
         vm.loading = false;
       });
     },
