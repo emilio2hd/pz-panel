@@ -27,10 +27,10 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4">
-                <server-status :status="pzserverStatus"></server-status>
+              <div class="col-5">
+                <server-status :state="pzserverState"></server-status>
               </div>
-              <div class="col-8 text-right">
+              <div class="col-7 text-right">
                 <power-button @power-action="onPowerActionEvent" class="float-right"></power-button>
               </div>
             </div>
@@ -82,7 +82,7 @@ let serverInfo = new Vue({
   el: '#serverInfo',
   data: {
     loading: true,
-    pzserverStatus: null,
+    pzserverState: null,
     cpuUsage: 0,
     memoryUsage: 0,
     onlinePlayers: 0,
@@ -94,15 +94,9 @@ let serverInfo = new Vue({
     },
   },
   created: function() {
-    var vm = this;
-    axios.get('/server/status').then((response) => {
-      vm.pzserverStatus = response.data.server_status
-      vm.onlinePlayers = response.data.online_players
-      vm.cpuUsage = response.data.server_resources.cpu
-      vm.memoryUsage = response.data.server_resources.ram
-      vm.disk = response.data.server_resources.disk
-      vm.loading = false;
-    });
+    axios
+      .get('/server/status')
+      .then((response) => this.$_updateServerStatus(response));
   },
   computed: {
     diskAvailablePercent() {
@@ -110,6 +104,14 @@ let serverInfo = new Vue({
     }
   },
   methods: {
+    $_updateServerStatus(response) {
+      this.pzserverState = response.data.server_state
+      this.onlinePlayers = response.data.online_players
+      this.cpuUsage = response.data.server_resources.cpu
+      this.memoryUsage = response.data.server_resources.ram
+      this.disk = response.data.server_resources.disk
+      this.loading = false;
+    },
     onPowerActionEvent(selectedAction) {
       axios.post('/server/power-actions', {
         power_action: selectedAction,
@@ -128,16 +130,10 @@ let serverInfo = new Vue({
       });
     },
     onRefreshClick() {
-      var vm = this;
-      vm.loading = true;
-      axios.get('/server/status').then((response) => {
-        vm.pzserverStatus = response.data.server_status
-        vm.onlinePlayers = response.data.online_players
-        vm.cpuUsage = response.data.server_resources.cpu
-        vm.memoryUsage = response.data.server_resources.ram
-        vm.disk = response.data.server_resources.disk
-        vm.loading = false;
-      });
+      this.loading = true;
+      axios
+        .get('/server/status')
+        .then((response) => this.$_updateServerStatus(response));
     },
     openServerLogsModal(){
       this.$bvModal.show(this.modalId);

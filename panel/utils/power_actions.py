@@ -2,6 +2,7 @@ import shlex
 from enum import Enum, unique
 from subprocess import Popen, PIPE, run
 
+from .. import pz_server_state
 
 @unique
 class CommandStatus(Enum):
@@ -28,12 +29,22 @@ def execute_command(pzuser_home, command):
 
 @power_action
 def stop_server(pzuser_home):
-    return execute_command(pzuser_home, 'stop-zomboid')
+    result = execute_command(pzuser_home, 'stop-zomboid')
+
+    if result is CommandStatus.SUCCESS and not pz_server_state.is_off():
+        pz_server_state.halt()
+
+    return result
 
 
 @power_action
-def start_server(pzuser_home,):
-    return execute_command(pzuser_home, 'start-zomboid')
+def start_server(pzuser_home):
+    result = execute_command(pzuser_home, 'start-zomboid')
+
+    if result is CommandStatus.SUCCESS and pz_server_state.is_off():
+        pz_server_state.boot()
+
+    return result
 
 
 @power_action

@@ -1,14 +1,17 @@
 Vue.component('server-status', {
-  props: ['status'],
+  props: ['state'],
   computed: {
     isOnline: function () {
-      return this.status == 'online';
+      return this.state == 'on';
     },
-    isStarting: function () {
-      return this.status == 'starting';
+    isBooting: function () {
+      return this.state == 'booting';
+    },
+    isHalting: function () {
+      return this.state == 'halting';
     },
     isOffline: function () {
-      return this.status == 'offline';
+      return this.state == 'off';
     }
   },
   template: `
@@ -17,9 +20,13 @@ Vue.component('server-status', {
         <i class="fas fa-circle text-success"></i>
         Online
       </template>
-      <template v-else-if="isStarting">
+      <template v-else-if="isBooting">
         <b-spinner small type="grow" variant="secondary"></b-spinner>
-        Starting
+        Booting
+      </template>
+      <template v-else-if="isHalting">
+        <b-spinner small type="grow" variant="secondary"></b-spinner>
+        Halting
       </template>
       <template v-else-if="isOffline">
         <i class="fas fa-circle text-danger"></i>
