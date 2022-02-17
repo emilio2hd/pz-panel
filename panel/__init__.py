@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
-from utils import PzServerStateMachine
+from .utils import PzServerStateMachine
 
 login_manager = LoginManager()
 pz_server_state = PzServerStateMachine()
