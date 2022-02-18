@@ -28,7 +28,7 @@
             </div>
             <div class="row">
               <div class="col-5">
-                <server-status :state="pzserverState"></server-status>
+                <server-status :state="sharedState.pzServerState"></server-status>
               </div>
               <div class="col-7 text-right">
                 <power-button @power-action="onPowerActionEvent" class="float-right"></power-button>
@@ -77,12 +77,19 @@
   ></server-log-modal>
 </div>
 <script>
-Vue.use(VueSSE)
+Vue.use(VueSSE);
+var store = {
+  state: {
+    pzServerState: null
+  },
+  setPzServerState(newState) {
+    this.state.pzServerState = newState
+  }
+};
 let serverInfo = new Vue({
   el: '#serverInfo',
   data: {
     loading: true,
-    pzserverState: null,
     cpuUsage: 0,
     memoryUsage: 0,
     onlinePlayers: 0,
@@ -92,6 +99,7 @@ let serverInfo = new Vue({
       used: 0,
       usagePercent: 0
     },
+    sharedState: store.state
   },
   created: function() {
     axios
@@ -105,7 +113,7 @@ let serverInfo = new Vue({
   },
   methods: {
     $_updateServerStatus(response) {
-      this.pzserverState = response.data.server_state
+      store.setPzServerState(response.data.server_state);
       this.onlinePlayers = response.data.online_players
       this.cpuUsage = response.data.server_resources.cpu
       this.memoryUsage = response.data.server_resources.ram
@@ -116,17 +124,10 @@ let serverInfo = new Vue({
       axios.post('/server/power-actions', {
         power_action: selectedAction,
       }).then((response) => {
-        this.$bvToast.toast(`Action "${selectedAction}" successfully performed. `, {
-          title: `Action Performed`,
-          variant: 'success',
-          solid: true
-        })
+        store.setPzServerState(response.data.server_state);
+        this.successToast(`Action "${selectedAction}" successfully performed.`, "Action Performed");
       }).catch(() => {
-        this.$bvToast.toast(`Failed to ${selectedAction} the server`, {
-          title: `Error`,
-          variant: 'danger',
-          solid: true
-        })
+        this.errorToast(`Failed to ${selectedAction} the server`, "Error");
       });
     },
     onRefreshClick() {

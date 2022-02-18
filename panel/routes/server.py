@@ -56,7 +56,7 @@ def power_actions():
     pz_user_home = current_app.config["PZ_USER_HOME"]
     result = server_power_actions[f"{power_action}_server"](pz_user_home)
     if result is CommandStatus.SUCCESS:
-        return '', 200
+        return jsonify(server_state=pz_server_state.state)
     else:
         return '', 500
 
