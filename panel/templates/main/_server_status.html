@@ -122,7 +122,7 @@ let serverInfo = new Vue({
           axios
           .get('/server/status')
           .then((response) => self.$_updateServerStatus(response));
-        }, 5000);
+        }, 10000);
       } else if (this.statePoolingId) {
         clearInterval(this.statePoolingId);
       }

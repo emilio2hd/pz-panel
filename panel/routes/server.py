@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
 
 from ..utils.power_actions import CommandStatus, actions as server_power_actions, is_zomboid_screen_session_up
-from ..utils.resources_functions import server_status, server_resources, online_players
+from ..utils.resources_functions import is_server_on, server_resources, online_players
 from .. import pz_server_state
 
 server_blueprint = Blueprint('server', __name__)
@@ -19,7 +19,7 @@ def status():
     is_rcon_server_on = None
 
     if is_zomboid_screen_session_up():
-        is_rcon_server_on = server_status(rcon_host, rcon_password)
+        is_rcon_server_on = is_server_on(rcon_host)
 
         if is_rcon_server_on:
             pz_server_state.on()
