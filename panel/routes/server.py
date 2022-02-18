@@ -61,12 +61,17 @@ def power_actions():
         return '', 500
 
 
+def read_config(pz_server_config: str):
+    with open(pz_server_config) as f:
+        config = dict(x.rstrip().split("=", 1) for x in f)
+
+    return config
+
+
 @server_blueprint.route('/server/options')
 @login_required
 def list_workshop_items():
-    server_config_path = current_app.config['PZ_SERVER_CONFIG']
-    with open(server_config_path) as f:
-        config = dict(x.rstrip().split("=", 1) for x in f)
+    config = read_config(current_app.config['PZ_SERVER_CONFIG'])
 
     return jsonify(
         WorkshopItems=list(filter(None, config["WorkshopItems"].split(";"))),
@@ -79,21 +84,19 @@ def list_workshop_items():
 def save_items():
     request_data = request.get_json()
 
-    server_config_path = current_app.config['PZ_SERVER_CONFIG']
-    with open(server_config_path) as f:
-        config = dict(x.rstrip().split("=", 1) for x in f)
+    config = read_config(current_app.config['PZ_SERVER_CONFIG'])
 
-    if("WorkshopItems" in request_data):
+    if "WorkshopItems" in request_data:
         workshop_items = request_data.get("WorkshopItems", [])
         config['WorkshopItems'] = ";".join(list(dict.fromkeys(workshop_items)))
 
-    if("Mods" in request_data):
+    if "Mods" in request_data:
         mods = request_data.get("Mods", [])
         config['Mods'] = ";".join(list(dict.fromkeys(mods)))
 
-    with open(server_config_path, 'w') as f:
+    with open(current_app.config['PZ_SERVER_CONFIG'], 'w') as f:
         for key in config.keys():
-            f.write("%s=%s\n" %(key, config[key]))
+            f.write("%s=%s\n" % (key, config[key]))
 
     return jsonify(
         WorkshopItems=list(filter(None, config["WorkshopItems"].split(";"))),
@@ -109,7 +112,7 @@ def listen_log():
         logFiles = glob.glob(path.join(serverLogsDir, logFilePattern))
         if not logFiles:
             yield 'data: {}\n\n'.format(
-                json.dumps({ "error": True, "errorMessage": "No log file found" })
+                json.dumps({"error": True, "errorMessage": "No log file found"})
             )
             return
 
@@ -124,7 +127,7 @@ def listen_log():
 
                     time.sleep(0.01)
                     yield 'data: {}\n\n'.format(
-                        json.dumps({ "log": line.strip() })
+                        json.dumps({"log": line.strip()})
                     )
             finally:
                 pass

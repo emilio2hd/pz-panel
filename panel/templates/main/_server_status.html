@@ -78,6 +78,7 @@
 </div>
 <script>
 Vue.use(VueSSE);
+
 var store = {
   state: {
     pzServerState: null
@@ -86,6 +87,7 @@ var store = {
     this.state.pzServerState = newState
   }
 };
+
 let serverInfo = new Vue({
   el: '#serverInfo',
   data: {
@@ -99,7 +101,8 @@ let serverInfo = new Vue({
       used: 0,
       usagePercent: 0
     },
-    sharedState: store.state
+    sharedState: store.state,
+    statePoolingId: null
   },
   created: function() {
     axios
@@ -109,6 +112,20 @@ let serverInfo = new Vue({
   computed: {
     diskAvailablePercent() {
       return 100.0 - this.disk.usagePercent;
+    }
+  },
+  watch: {
+    'sharedState.pzServerState': function (newValue, oldValue) {
+      if((newValue == "booting" || newValue == "halting") && !this.statePoolingId) {
+        var self = this;
+        this.statePoolingId = setInterval(() => {
+          axios
+          .get('/server/status')
+          .then((response) => self.$_updateServerStatus(response));
+        }, 5000);
+      } else if (this.statePoolingId) {
+        clearInterval(this.statePoolingId);
+      }
     }
   },
   methods: {
