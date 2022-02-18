@@ -102,7 +102,7 @@ let serverInfo = new Vue({
       usagePercent: 0
     },
     sharedState: store.state,
-    statePoolingId: null
+    statePollingId: null
   },
   created: function() {
     axios
@@ -116,15 +116,16 @@ let serverInfo = new Vue({
   },
   watch: {
     'sharedState.pzServerState': function (newValue, oldValue) {
-      if((newValue == "booting" || newValue == "halting") && !this.statePoolingId) {
+      if((newValue == "booting" || newValue == "halting") && !this.statePollingId) {
         var self = this;
-        this.statePoolingId = setInterval(() => {
+        this.statePollingId = setInterval(() => {
           axios
           .get('/server/status')
           .then((response) => self.$_updateServerStatus(response));
         }, 10000);
-      } else if (this.statePoolingId) {
-        clearInterval(this.statePoolingId);
+      } else if (this.statePollingId) {
+        clearInterval(this.statePollingId);
+        this.statePollingId = null;
       }
     }
   },
