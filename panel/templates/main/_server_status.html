@@ -51,21 +51,7 @@
           <div class="card-body">
             <i class="fas fa-memory fa-2x" style="position: absolute; right: 1.5rem; opacity: 0.2;"></i>
             <h5 class="card-title text-muted">Resources Usage</h5>
-            <b-row>
-              <b-col cols="7">
-                <resources-usage :cpu="cpuUsage" :memory="memoryUsage"></resources-usage>
-              </b-col>
-              <b-col cols="5">
-                <div style="font-size: 0.694rem;">
-                  <i class="fas fa-hdd"></i>
-                  Disk Usage
-                </div>
-                <div class="progress">
-                  <div class="progress-bar" v-b-tooltip.hover :title="`Used Space: ${disk.used}`" role="progressbar" v-bind:style="{ width: disk.usagePercent + '%' }"></div>
-                  <div class="progress-bar bg-transparent" v-b-tooltip.hover :title="`Available: ${disk.free}`" role="progressbar" v-bind:style="{ width: diskAvailablePercent + '%' }"></div>
-                </div>
-              </b-col>
-            </b-row>
+            <resources-usage :resources="resources"></resources-usage>
           </div>
         </div>
       </div>
@@ -92,15 +78,9 @@ let serverInfo = new Vue({
   el: '#serverInfo',
   data: {
     loading: true,
-    cpuUsage: 0,
-    memoryUsage: 0,
     onlinePlayers: 0,
     modalId: 'modal-server-logs',
-    disk: {
-      free: 0,
-      used: 0,
-      usagePercent: 0
-    },
+    resources: {},
     sharedState: store.state,
     statePollingId: null
   },
@@ -108,11 +88,6 @@ let serverInfo = new Vue({
     axios
       .get('/server/status')
       .then((response) => this.$_updateServerStatus(response));
-  },
-  computed: {
-    diskAvailablePercent() {
-      return 100.0 - this.disk.usagePercent;
-    }
   },
   watch: {
     'sharedState.pzServerState': function (newValue, oldValue) {
@@ -132,10 +107,8 @@ let serverInfo = new Vue({
   methods: {
     $_updateServerStatus(response) {
       store.setPzServerState(response.data.server_state);
-      this.onlinePlayers = response.data.online_players
-      this.cpuUsage = response.data.server_resources.cpu
-      this.memoryUsage = response.data.server_resources.ram
-      this.disk = response.data.server_resources.disk
+      this.onlinePlayers = response.data.online_players;
+      this.resources = response.data.server_resources;
       this.loading = false;
     },
     onPowerActionEvent(selectedAction) {
