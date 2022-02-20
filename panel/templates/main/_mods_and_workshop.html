@@ -3,7 +3,12 @@
     <div class="card">
       <div class="card-header">
         <div class="row align-items-center">
-          <div class="col-5">Workshop Items</div>
+          <div class="col-5">
+            Workshop Ids
+            <small v-if="hasSelectedItems()">
+              ({% raw %}{{selectWorkshopItemsCount()}}{% endraw %} Selected)
+            </small>
+          </div>
           <div class="col-7">
             <search-field
               v-model="filterWorkshopItems"
@@ -48,7 +53,12 @@
     <div class="card">
       <div class="card-header">
         <div class="row align-items-center">
-          <div class="col-5">Mods</div>
+          <div class="col-5">
+            Mod Ids
+            <small v-if="hasSelectedMods()">
+              ({% raw %}{{selectModsCount()}}{% endraw %} Selected)
+            </small>
+          </div>
           <div class="col-7">
             <search-field
               v-model="filterMods"
@@ -147,10 +157,16 @@ let modsAndWorkshopItems = new Vue({
   },
   methods: {
     hasSelectedItems() {
-      return this.internalWorkshopItems.some(i => i.checked)
+      return this.internalWorkshopItems.some(i => i.checked);
+    },
+    selectWorkshopItemsCount() {
+      return this.internalWorkshopItems.filter(i => i.checked).length
     },
     hasSelectedMods() {
       return this.internalModsItems.some(i => i.checked)
+    },
+    selectModsCount() {
+      return this.internalModsItems.filter(i => i.checked).length
     },
     onRemoveSelectedWorkshopItemsClick() {
       workshopItems = this.internalWorkshopItems.filter(i => i.checked).map(i => i.name);
@@ -170,10 +186,10 @@ let modsAndWorkshopItems = new Vue({
           .then((response) => {
             this.loadingItems = false
             this.internalWorkshopItems = newInternalWorkshopItems;
-            this.successToast("Workshop items successfully removed", "Workshop Item");
+            this.successToast("Workshop ids successfully removed", "Workshop Id");
           }).catch(() => {
             this.loadingItems = false
-            this.errorToast("Failed to remove workshop item", "Workshop Item");
+            this.errorToast("Failed to remove workshop ids", "Workshop Id");
           });
         }
       });
