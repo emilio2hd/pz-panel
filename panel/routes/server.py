@@ -103,6 +103,25 @@ def save_items():
         Mods=list(filter(None, config["Mods"].split(";")))
     )
 
+@server_blueprint.route('/server/options/export')
+@login_required
+def export_server_config():
+    config = read_config(current_app.config['PZ_SERVER_CONFIG'])
+
+    export_config = {
+        "WorkshopItems": config["WorkshopItems"],
+        "Mods": config["Mods"]
+    }
+
+    def generate(config):
+        for key in config.keys():
+            yield "%s=%s\n" % (key, config[key])
+
+    return Response(
+        generate(export_config),
+        mimetype='text/event-stream',
+        headers={"Content-Disposition": "attachment;filename=server_config.ini"}
+    )
 
 @server_blueprint.route('/server/log')
 @login_required
