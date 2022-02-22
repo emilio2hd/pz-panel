@@ -6,7 +6,7 @@ Vue.component('disk-usage', {
   },
   methods: {
     availablePercent() {
-      return 100.0 - this.diskInfo.usagePercent;
+      return 100.0 - this.usagePercent();
     },
     usagePercent() {
       return this.diskInfo.usagePercent;
@@ -17,6 +17,19 @@ Vue.component('disk-usage', {
     freeSpace() {
       return this.diskInfo.free;
     },
+    variant() {
+      if(this.usagePercent() <= 60) {
+        return 'secondary';
+      }
+
+      if(this.usagePercent() > 60 && this.usagePercent() < 90) {
+        return 'warning';
+      }
+
+      if(this.usagePercent() >= 90) {
+        return 'danger';
+      }
+    }
   },
   template: `
   <div class="disk-usage">
@@ -25,13 +38,12 @@ Vue.component('disk-usage', {
       Disk Usage
     </div>
     <div class="progress">
-      <div
+      <b-progress-bar
         v-b-tooltip.hover
-        class="progress-bar"
-        role="progressbar"
-        :style="{ width: \`\${usagePercent()}%\` }"
         :title="\`Used Space: \${usedSpace()}\`"
-      ></div>
+        :value="usagePercent()"
+        :variant="variant()"
+      ></b-progress-bar>
       <div
         v-b-tooltip.hover
         class="progress-bar bg-transparent"
