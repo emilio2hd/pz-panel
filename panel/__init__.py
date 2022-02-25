@@ -5,6 +5,7 @@ from .utils import PzServerStateMachine
 login_manager = LoginManager()
 pz_server_state = PzServerStateMachine()
 
+
 def create_app(test_config=None):
     _app = Flask(__name__, instance_relative_config=False)
 

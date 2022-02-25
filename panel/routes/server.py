@@ -1,14 +1,15 @@
 import glob
 import time
 from os import path
+
 from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
 
+from .. import pz_server_state
 from ..services.power_actions_service import is_valid_power_action, execute_action
 from ..services.server_options_service import read_config, save_config, prepared_config_to_view, formatted_config_lines
-from ..services.server_status_service import is_zomboid_screen_session_up
-from ..utils.resources_functions import is_server_on, server_resources, online_players
-from .. import pz_server_state
+from ..services.server_status_service import get_server_status
+from ..utils.resources_functions import server_resources
 
 server_blueprint = Blueprint('server', __name__, url_prefix='/server')
 
@@ -18,25 +19,11 @@ server_blueprint = Blueprint('server', __name__, url_prefix='/server')
 def status():
     rcon_host = current_app.config['RCON_HOST']
     rcon_password = current_app.config['RCON_PASSWORD']
-    is_rcon_server_on = None
 
-    if is_zomboid_screen_session_up():
-        is_rcon_server_on = is_server_on(rcon_host)
-
-        if is_rcon_server_on:
-            pz_server_state.on()
-
-        if pz_server_state.is_off():
-            pz_server_state.boot()
-    else:
-        pz_server_state.off()
-
-    players = 0
-    if is_rcon_server_on:
-        players = online_players(rcon_host, rcon_password)
+    server_state, players = get_server_status(rcon_host, rcon_password)
 
     return jsonify(
-        server_state=pz_server_state.state,
+        server_state=server_state,
         online_players=players,
         server_resources=server_resources()
     )

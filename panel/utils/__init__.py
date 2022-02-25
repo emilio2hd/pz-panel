@@ -1,7 +1,8 @@
 from transitions import Machine
 
+
 class PzServerStateMachine(object):
-    states=['off', 'booting', 'on', 'halting']
+    states = ['off', 'booting', 'on', 'halting']
 
     def __init__(self):
         self.machine = Machine(model=self, states=PzServerStateMachine.states, initial='off')

@@ -1,12 +1,13 @@
 ALLOWED_CONFIG_OPTIONS = ["WorkshopItems", "Mods"]
+CONFIG_VALUE_SEPARATOR = ';'
 
 
 def prepared_config_to_save(config_value: dict):
-    return ";".join(list(dict.fromkeys(config_value)))
+    return CONFIG_VALUE_SEPARATOR.join(list(dict.fromkeys(config_value)))
 
 
 def prepared_config_to_view(config_value):
-    return list(filter(None, config_value.split(";")))
+    return list(filter(None, config_value.split(CONFIG_VALUE_SEPARATOR)))
 
 
 def formatted_config_lines(config: dict):
