@@ -4,15 +4,16 @@ from os import path
 from flask import Blueprint, jsonify, current_app, request, Response, json
 from flask_login import login_required
 
+from ..services.power_actions_service import is_valid_power_action, execute_action
 from ..services.server_options_service import read_config, save_config, prepared_config_to_view, formatted_config_lines
-from ..utils.power_actions import CommandStatus, actions as server_power_actions, is_zomboid_screen_session_up
+from ..services.server_status_service import is_zomboid_screen_session_up
 from ..utils.resources_functions import is_server_on, server_resources, online_players
 from .. import pz_server_state
 
-server_blueprint = Blueprint('server', __name__)
+server_blueprint = Blueprint('server', __name__, url_prefix='/server')
 
 
-@server_blueprint.route('/server/status')
+@server_blueprint.route('/status')
 @login_required
 def status():
     rcon_host = current_app.config['RCON_HOST']
@@ -41,25 +42,20 @@ def status():
     )
 
 
-@server_blueprint.route('/server/power-actions', methods=['POST'])
+@server_blueprint.route('/power-actions', methods=['POST'])
 @login_required
 def power_actions():
     request_data = request.get_json()
-    power_action = None
+    pz_user_home = current_app.config["PZ_USER_HOME"]
+    power_action = request_data.get("power_action", None)
 
-    if request_data:
-        if 'power_action' in request_data:
-            power_action = request_data['power_action']
-
-    if not power_action or f"{power_action}_server" not in server_power_actions:
+    if not is_valid_power_action(power_action):
         return jsonify(error="Unknown action"), 400
 
-    pz_user_home = current_app.config["PZ_USER_HOME"]
-    result = server_power_actions[f"{power_action}_server"](pz_user_home)
-    if result is CommandStatus.SUCCESS:
-        return jsonify(server_state=pz_server_state.state)
-    else:
+    if not execute_action(power_action, pz_user_home):
         return '', 500
+
+    return jsonify(server_state=pz_server_state.state)
 
 
 def get_config(pz_server_config):
@@ -71,7 +67,7 @@ def get_config(pz_server_config):
     }
 
 
-@server_blueprint.route('/server/options')
+@server_blueprint.route('/options')
 @login_required
 def list_workshop_items():
     export_config = get_config(current_app.config['PZ_SERVER_CONFIG'])
@@ -79,19 +75,19 @@ def list_workshop_items():
     return jsonify(export_config)
 
 
-@server_blueprint.route('/server/options/export')
+@server_blueprint.route('/options/export')
 @login_required
 def export_server_config():
     export_config = get_config(current_app.config['PZ_SERVER_CONFIG'])
 
-    return Response(
+    return current_app.response_class(
         formatted_config_lines(export_config),
         mimetype='text/event-stream',
         headers={"Content-Disposition": "attachment;filename=server_config.ini"}
     )
 
 
-@server_blueprint.route('/server/options', methods=['POST'])
+@server_blueprint.route('/options', methods=['POST'])
 @login_required
 def save_items():
     request_data = request.get_json()
@@ -106,7 +102,7 @@ def save_items():
     return jsonify(export_config)
 
 
-@server_blueprint.route('/server/log')
+@server_blueprint.route('/log')
 @login_required
 def listen_log():
     def followLog(serverLogsDir):
