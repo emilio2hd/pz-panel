@@ -13,6 +13,9 @@ Vue.mixin({
     errorToast: function (message, title) {
       this.$_basicToast(message, title, 'danger');
     },
+    warningToast: function (message, title) {
+      this.$_basicToast(message, title, 'warning');
+    },
     confirmation: function(message, okAction) {
       let defaultOkAction = () => {};
       let defaultMessage = "Are you sure?";

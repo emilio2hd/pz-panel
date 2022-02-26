@@ -49,8 +49,8 @@ def get_config(pz_server_config):
     config = read_config(pz_server_config)
 
     return {
-        "WorkshopItems": prepared_config_to_view(config["WorkshopItems"]),
-        "Mods": prepared_config_to_view(config["Mods"])
+        "WorkshopItems": config["WorkshopItems"],
+        "Mods": config["Mods"]
     }
 
 
@@ -59,7 +59,10 @@ def get_config(pz_server_config):
 def list_workshop_items():
     export_config = get_config(current_app.config['PZ_SERVER_CONFIG'])
 
-    return jsonify(export_config)
+    return jsonify(
+        WorkshopItems=prepared_config_to_view(export_config["WorkshopItems"]),
+        Mods=prepared_config_to_view(export_config["Mods"])
+    )
 
 
 @server_blueprint.route('/options/export')

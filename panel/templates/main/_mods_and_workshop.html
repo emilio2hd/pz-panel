@@ -133,6 +133,9 @@ let modsAndWorkshopItems = new Vue({
       this.internalWorkshopItems = workshopItems
       this.internalModsItems = mods
       this.loadingItems = false
+    }).catch(() => {
+      this.modalAddItemsLoading = false
+      this.errorToast("Failed to load workshop items and mods", "Items");
     });
   },
   computed: {

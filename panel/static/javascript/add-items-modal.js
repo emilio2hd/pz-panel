@@ -1,3 +1,81 @@
+const WorkshopItemRegex = /WorkshopItems=(.+)/;
+const ModRegex = /Mods=(.+)/;
+const ValueSeparator = ";";
+
+Vue.component('import-config-items', {
+  data: function () {
+    return {
+      workshopItems: [],
+      mods: []
+    }
+  },
+  methods: {
+    $_extractFromRegex(regex, content) {
+      let result = regex.exec(content);
+
+      if (!result) {
+        return;
+      }
+
+      return result[1].split(ValueSeparator);
+    },
+    $_extractWorkshopItems(configContent) {
+      this.workshopItems = this.$_extractFromRegex(WorkshopItemRegex, configContent) || [];
+    },
+    $_extractMods(configContent) {
+      this.mods = this.$_extractFromRegex(ModRegex, configContent) || [];
+    },
+    $_readConfigFile(file) {
+      let reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = (evt) => {
+        this.$_extractWorkshopItems(evt.target.result);
+        this.$_extractMods(evt.target.result);
+
+        if(this.mods.length == 0 && this.workshopItems.length == 0) {
+          return this.warningToast(`Not items found to be imported from "${file.name}"`, "Import Config");
+        }
+
+        this.$emit('import', {
+          workshopItems: this.workshopItems,
+          mods: this.mods,
+        });
+      }
+      reader.onerror = (evt) => console.error(evt)
+    },
+    handleFileUpload(event){
+      this.workshopItems = [];
+      this.mods = [];
+
+      let file = event.target.files[0];
+      if (file.type && !file.type.startsWith('text/')) {
+        this.errorToast("File is not a valid config file", "Import Config");
+        return;
+      }
+
+      this.$_readConfigFile(file);
+      this.$refs.file.value = null;
+    },
+    addFiles(){
+      this.$refs.file.click();
+    },
+  },
+  template: `
+  <div>
+    <input type="file" id="file" ref="file" class="d-none" @change="handleFileUpload($event)"/>
+    <b-link v-on:click="addFiles()">
+      <i class="fas fa-upload"></i>
+      Import Config
+    </b-link>
+    <i
+      v-b-tooltip.hover.left
+      class="fas fa-info-circle text-muted"
+      title="Use this link to import workshop ids and mods from the server .ini file"
+    ></i>
+  </div>
+  `
+});
+
 Vue.component('add-items-modal', {
   props: {
     modalId: {
@@ -101,6 +179,10 @@ Vue.component('add-items-modal', {
       let mods = this.options.mods.filter((item) => item != newMod);
       this.options.mods = mods;
     },
+    onImportConfig(event) {
+      this.options.mods = this.options.mods.concat(event.mods);
+      this.options.workshopItems = this.options.workshopItems.concat(event.workshopItems);
+    }
   },
   template: `
   <b-modal
@@ -158,7 +240,15 @@ Vue.component('add-items-modal', {
           </b-input-group>
         </b-col>
       </b-row>
-      <p class="text-muted font-italic mb-1"><small>Press &lt;Enter&gt; to add multiple items</small></p>
+      <div class="d-flex">
+        <p class="text-muted font-italic mb-1 flex-fill">
+          <small>Press &lt;Enter&gt; to add multiple items</small>
+        </p>
+        <import-config-items
+          class="flex-fill text-right"
+          @import="onImportConfig"
+        ></import-config-items>
+      </div>
       <b-row>
       <b-col cols="6">
         <b-list-group>
