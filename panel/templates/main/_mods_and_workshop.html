@@ -128,13 +128,13 @@ let modsAndWorkshopItems = new Vue({
   },
   mounted() {
     axios.get('/server/options').then((response) => {
-      let workshopItems = response.data['WorkshopItems'].map((item) => ({ name: item, checked: false }))
-      let mods = response.data['Mods'].map((item) => ({ name: item, checked: false }))
-      this.internalWorkshopItems = workshopItems
-      this.internalModsItems = mods
-      this.loadingItems = false
+      let workshopItems = response.data['WorkshopItems'].map((item) => ({ name: item, checked: false }));
+      let mods = response.data['Mods'].map((item) => ({ name: item, checked: false }));
+      this.internalWorkshopItems = workshopItems;
+      this.internalModsItems = mods;
+      this.loadingItems = false;
     }).catch(() => {
-      this.modalAddItemsLoading = false
+      this.loadingItems = false;
       this.errorToast("Failed to load workshop items and mods", "Items");
     });
   },
