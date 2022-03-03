@@ -38,4 +38,4 @@ Vue.component('server-status', {
       </template>
   </div>
   `
-})
+});

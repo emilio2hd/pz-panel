@@ -36,4 +36,4 @@ Vue.mixin({
       .catch(err => console.log('Modal error: ', err))
     }
   }
-})
+});

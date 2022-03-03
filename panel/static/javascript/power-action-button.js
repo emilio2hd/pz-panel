@@ -17,4 +17,4 @@ Vue.component('power-button', {
     <b-dropdown-item href="#" @click="emitPowerAction('start')">Start Server</b-dropdown-item>
   </b-dropdown>
   `
-})
+});

@@ -34,4 +34,4 @@ Vue.component('search-field', {
     </b-input-group-append>
   </b-input-group>
   `
-})
+});
