@@ -62,14 +62,14 @@ Vue.component('import-config-items', {
   },
   template: `
   <div>
-    <input type="file" id="file" ref="file" class="d-none" @change="handleFileUpload($event)"/>
+    <input type="file" id="file" ref="file" class="d-none" v-on:change="handleFileUpload($event)"/>
     <b-link v-on:click="addFiles()">
-      <i class="fas fa-upload"></i>
+      <i class="fas fa-upload mr-1"></i>
       Import Config
     </b-link>
     <i
       v-b-tooltip.hover.left
-      class="fas fa-info-circle text-muted"
+      class="fas fa-info-circle text-muted ml-1"
       title="Use this link to import workshop ids and mods from the server .ini file"
     ></i>
   </div>
@@ -188,18 +188,18 @@ Vue.component('add-items-modal', {
   <b-modal
     centered
     scrollable
-    :id="modalId"
     ok-title="Save"
     ref="modal"
     size="lg"
     title="Add new items"
-    :busy="loading"
-    @hidden="resetModal"
-    @ok="handleOk"
-    @show="resetModal"
-    @shown="onShownModal"
+    v-bind:id="modalId"
+    v-bind:busy="loading"
+    v-on:hidden="resetModal"
+    v-on:ok="handleOk"
+    v-on:show="resetModal"
+    v-on:shown="onShownModal"
   >
-    <b-overlay :show="showOverlay" rounded="sm">
+    <b-overlay v-bind:show="showOverlay" rounded="sm">
       <template #overlay>
         <div class="d-flex align-items-center">
           <b-spinner type="grow" variant="dark" class="mr-1"></b-spinner>
@@ -208,7 +208,7 @@ Vue.component('add-items-modal', {
       </template>
       <b-alert
         dismissible
-        :show="modalOpt.newWorkshopItemState == false || modalOpt.newModState == false"
+        v-bind:show="modalOpt.newWorkshopItemState == false || modalOpt.newModState == false"
         variant="danger"
       >
         You need to add at least one of either Workshop id or Mod id.
@@ -220,8 +220,8 @@ Vue.component('add-items-modal', {
             <b-form-input
               v-model="newWorkshopItem"
               ref="newWorkshopItemInput"
-              :state="modalOpt.newWorkshopItemState"
-              @keyup.enter="onNewWorkshopItemEnter()"
+              v-bind:state="modalOpt.newWorkshopItemState"
+              v-on:keyup.enter="onNewWorkshopItemEnter()"
               placeholder="Add the workshop id here"
               required
             ></b-form-input>
@@ -232,8 +232,8 @@ Vue.component('add-items-modal', {
           <b-input-group class="form-group mb-0">
             <b-form-input
               v-model="newMod"
-              :state="modalOpt.newModState"
-              @keyup.enter="onNewModEnter()"
+              v-bind:state="modalOpt.newModState"
+              v-on:keyup.enter="onNewModEnter()"
               placeholder="Add the mod id here"
               required
             ></b-form-input>
@@ -246,16 +246,16 @@ Vue.component('add-items-modal', {
         </p>
         <import-config-items
           class="flex-fill text-right"
-          @import="onImportConfig"
+          v-on:import="onImportConfig"
         ></import-config-items>
       </div>
       <b-row>
       <b-col cols="6">
         <b-list-group>
-          <b-list-group-item v-for="item in options.workshopItems" :key="item.value">
+          <b-list-group-item v-for="item in options.workshopItems" v-bind:key="item.value">
           <div class="d-flex">
             <div class="flex-grow-1">{{ item }}</div>
-            <b-link @click="removeNewWorkshopItem(item)">
+            <b-link v-on:click="removeNewWorkshopItem(item)">
               <i
                 class="fas fa-trash"
                 v-b-tooltip.hover.left
@@ -268,10 +268,10 @@ Vue.component('add-items-modal', {
       </b-col>
       <b-col cols="6">
         <b-list-group>
-          <b-list-group-item v-for="item in options.mods" :key="item.value">
+          <b-list-group-item v-for="item in options.mods" v-bind:key="item.value">
           <div class="d-flex">
             <div class="flex-grow-1">{{ item }}</div>
-            <b-link @click="removeNewMod(item)">
+            <b-link v-on:click="removeNewMod(item)">
               <i
                 class="fa fa-trash"
                 v-b-tooltip.hover.left

@@ -20,14 +20,14 @@ Vue.component('search-field', {
       type="search"
       ref="searchInput"
       v-bind="$attrs"
-      :value="searchInputValue"
-      @input="$emit('input', $event); searchInputValue = $event"
+      v-bind:value="searchInputValue"
+      v-on:input="$emit('input', $event); searchInputValue = $event"
     ></b-form-input>
 
     <b-input-group-append>
       <b-button
-        :disabled="!searchInputValue || $attrs['disabled']"
-        @click="emitClearEvent()"
+        v-bind:disabled="!searchInputValue || $attrs['disabled']"
+        v-on:click="emitClearEvent()"
       >
         Clear
       </b-button>

@@ -21,13 +21,13 @@ Vue.component('list-items', {
   },
   template: `
   <div class="list-items h-100">
-    <b-skeleton-wrapper :loading="loading" class="row">
+    <b-skeleton-wrapper v-bind:loading="loading" class="row">
       <template #loading>
         <b-skeleton-table
           hide-header
-          :rows="10"
-          :columns="1"
-          :table-props="{ bordered: true, striped: true }"
+          v-bind:rows="10"
+          v-bind:columns="1"
+          v-bind:table-props="{ bordered: true, striped: true }"
         ></b-skeleton-table>
       </template>
       <div
@@ -39,17 +39,16 @@ Vue.component('list-items', {
       <b-table-simple striped hover v-else>
         <b-tbody>
           <b-tr
-            v-for="item in items"
-            :key="item.name"
-            :variant="applySelectionIfChecked(item)"
             role="button"
-            @click="item.checked = !item.checked"
+            v-for="item in items"
+            v-bind:key="item.name"
+            v-bind:variant="applySelectionIfChecked(item)"
+            v-on:click="item.checked = !item.checked"
           >
             <b-td width="3%">
               <input type="checkbox"
                 v-model="item.checked"
-                :id="'item_' + item.name"
-              />
+                v-bind:id="'item_' + item.name" />
             </b-td>
             <b-td>{{item.name}}</b-td>
           </b-tr>

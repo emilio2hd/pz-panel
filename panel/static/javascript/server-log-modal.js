@@ -90,14 +90,14 @@ Vue.component('server-log-modal', {
   template: `
   <b-modal
     centered
-    :id="modalId"
+    v-bind:id="modalId"
     ok-only
     ok-title="Close"
     ref="modal"
     size="xl"
-    @hidden="onHidden"
-    @ok="handleOk"
-    @show="onShow"
+    v-on:hidden="onHidden"
+    v-on:ok="handleOk"
+    v-on:show="onShow"
   >
     <template #modal-title>
       <i class="fa fa-book"></i>
@@ -112,10 +112,10 @@ Vue.component('server-log-modal', {
         Connecting...
       </div>
       <virtual-list style="height: 360px; overflow-y: auto;" ref="vsl"
-        :data-key="'id'"
-        :data-sources="logs"
-        :data-component="logEntry"
-        :estimate-size="50"
+        v-bind:data-key="'id'"
+        v-bind:data-sources="logs"
+        v-bind:data-component="logEntry"
+        v-bind:estimate-size="50"
       />
     </div>
   </b-modal>

@@ -34,26 +34,26 @@ Vue.component('disk-usage', {
   template: `
   <div class="disk-usage">
     <div style="font-size: 0.694rem;">
-      <i class="fas fa-hdd"></i>
+      <i class="fas fa-hdd mr-1"></i>
       Disk Usage
     </div>
     <div class="progress">
       <b-progress-bar
         v-b-tooltip.hover
-        :title="\`Used Space: \${usedSpace()}\`"
-        :value="usagePercent()"
-        :variant="variant()"
+        v-bind:title="\`Used Space: \${usedSpace()}\`"
+        v-bind:value="usagePercent()"
+        v-bind:variant="variant()"
       ></b-progress-bar>
       <div
         v-b-tooltip.hover
         class="progress-bar bg-transparent"
         role="progressbar"
-        :style="{ width: \`\${availablePercent()}%\` }"
-        :title="\`Available: \${freeSpace()}\`"
+        v-bind:style="{ width: \`\${availablePercent()}%\` }"
+        v-bind:title="\`Available: \${freeSpace()}\`"
       ></div>
     </div>
   </div>
-  `,
+  `
 });
 
 Vue.component('ram-cpu-usage', {
@@ -77,18 +77,19 @@ Vue.component('ram-cpu-usage', {
       <div>{{ ramUsage() }}</div>
     </div>
     <div class="progress" style="height: 1px;">
-      <div class="progress-bar" role="progressbar" :style="\`width: \${ramUsage()}%\`"></div>
+      <div class="progress-bar" role="progressbar" v-bind:style="\`width: \${ramUsage()}%\`"></div>
     </div>
     <div class="d-flex justify-content-between align-items-center" style="font-size: .694rem;">
       <p class="mb-1">CPU</p>
       <div>{{ cpuUsage() }}</div>
     </div>
     <div class="progress" style="height: 1px;">
-      <div class="progress-bar" role="progressbar" :style="\`width: \${cpuUsage()}%\`"></div>
+      <div class="progress-bar" role="progressbar" v-bind:style="\`width: \${cpuUsage()}%\`"></div>
     </div>
   </div>
   `
-})
+});
+
 Vue.component('resources-usage', {
   props:{
     resources: {
@@ -98,10 +99,14 @@ Vue.component('resources-usage', {
   template: `
   <b-row>
     <b-col cols="7">
-      <ram-cpu-usage :resources="resources"></ram-cpu-usage>
+      <ram-cpu-usage
+        v-bind:resources="resources"
+      ></ram-cpu-usage>
     </b-col>
     <b-col cols="5">
-      <disk-usage :disk-info="resources.disk" ></disk-usage>
+      <disk-usage
+        v-bind:disk-info="resources.disk"
+      ></disk-usage>
     </b-col>
   </b-row>
   `
