@@ -1,14 +1,9 @@
 {% extends "layout.html" %}
 
 {% block page_javascript %}
-<script src="{{ url_for('static', filename='javascript/mixins.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/power-action-button.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/server-status.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/resources-usage.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/search-field.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/list-items.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/add-items-modal.js') }}"></script>
-<script src="{{ url_for('static', filename='javascript/server-log-modal.js') }}"></script>
+{% assets "dashboard_js" %}
+<script src="{{ASSET_URL}}"></script>
+{% endassets %}
 {% endblock %}
 
 {% block content %}
